@@ -10,8 +10,8 @@ class Binner(BaseEstimator, TransformerMixin):
         if not cutpoints:
             if n_bins < 2:
                 raise ValueError("n_bins must be >= 2")
-            cutpoints = np.linspace(min, max, num=(n_bins - 2)) 
-        self._n_bins = 
+            cutpoints = np.linspace(min, max, num=(n_bins - 1)) 
+        self._n_bins = len(cutpoints) + 1
         self._cutpoints = cutpoints
 
     def fit(self, X, y=None):
@@ -25,6 +25,6 @@ class Binner(BaseEstimator, TransformerMixin):
         iter_cuts = enumerate(
             zip(self._cutpoints[:(n_cutpoints - 1)], self._cutpoints[1:]))
         for i, (left_cut, right_cut) in iter_cuts:
-            X_binned[:, i+1] = left_cut < X <= right_cut
-        X_binned[:, self._n_bins] = self._cutpoints[-1] < X
+            X_binned[:, i+1] = (left_cut < X) * (X <= right_cut)
+        X_binned[:, self._n_bins - 1] = self._cutpoints[-1] < X
         return X_binned
