@@ -14,7 +14,7 @@ class Binner(BaseEstimator, TransformerMixin):
         self._n_bins = len(cutpoints) + 1
         self._cutpoints = cutpoints
 
-    def fit(self, X, y=None):
+    def fit(self, *args, **kwargs):
         return self
 
     def transform(self, X, y=None):
