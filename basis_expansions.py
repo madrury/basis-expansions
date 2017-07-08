@@ -95,7 +95,21 @@ def _compute_knots(max, min, n_knots):
     return np.linspace(min, max, num=(n_knots + 2))[1:-1] 
 
 
-class LinearSpline(BaseEstimator, TransformerMixin):
+class AbstractSpline(BaseEstimator, TransformerMixin):
+    """Base class for all spline basis expansions."""
+
+    def __init__(self, max=None, min=None, n_knots=None, knots=None):
+        if not knots:
+            knots = _compute_knots(max, min, n_knots)
+            max, min = np.max(knots), np.min(knots)
+        self.knots = knots
+        self._n_knots = len(knots)
+
+    def fit(self, *args, **kwargs):
+        return self
+
+
+class LinearSpline(AbstractSpline):
     """Apply a piecewise linear basis expansion to an array.
 
     Create new features out of an array that can be used to fit a continuous
@@ -113,16 +127,6 @@ class LinearSpline(BaseEstimator, TransformerMixin):
     n_knots: The number of knots to create.
     knots: The knots.
     """
-    def __init__(self, max=None, min=None, n_knots=None, knots=None):
-        if not knots:
-            knots = _compute_knots(max, min, n_knots)
-            max, min = np.max(knots), np.min(knots)
-        self.knots = knots
-        self._n_knots = len(knots)
-
-    def fit(self, *args, **kwargs):
-        return self
-
     def transform(self, X, **transform_params):
         X_pl = np.zeros((X.shape[0], self._n_knots + 1))
         X_pl[:, 0] = X.squeeze()
