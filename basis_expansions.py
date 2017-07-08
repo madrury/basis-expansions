@@ -66,7 +66,7 @@ class Binner(BaseEstimator, TransformerMixin):
         return X_binned
 
 
-class PolynomialExpansion(object):
+class Polynomial(object):
     """Apply a polynomial basis expansion to an array.
 
     Note that the array should be standardized before using this basis
