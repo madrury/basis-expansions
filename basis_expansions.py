@@ -127,9 +127,39 @@ class LinearSpline(AbstractSpline):
     n_knots: The number of knots to create.
     knots: The knots.
     """
+
     def transform(self, X, **transform_params):
         X_pl = np.zeros((X.shape[0], self._n_knots + 1))
         X_pl[:, 0] = X.squeeze()
         for i, knot in enumerate(self.knots, start=1):
             X_pl[:, i] = np.maximum(0, X - knot).squeeze()
         return X_pl
+
+
+class CubicSpline(AbstractSpline):
+    """Apply a piecewise cubic basis expansion to an array.
+
+    Create new features out of an array that can be used to fit a continuous
+    piecewise cubic function of the array.
+
+    This transformer can be created by sepcifying the maximum, minimum, and
+    number of knots, or by specifying the cutpoints directly.  If the knots are
+    not directly sepcified, the resulting knots are equally space within the
+    *interior* of (max, min).
+
+    Parameters
+    ----------
+    min: Minimum of interval containing the knots.
+    max: Maximum of the interval containing the knots.
+    n_knots: The number of knots to create.
+    knots: The knots.
+    """
+
+    def transform(self, X, **transform_params):
+        X_spl = np.zeros((X.shape[0], self._n_knots + 3))
+        X_spl[:, 0] = X.squeeze()
+        X_spl[:, 1] = X_spl[:, 0] * X_spl[:, 0]
+        X_spl[:, 2] = X_spl[:, 1] * X_spl[:, 0]
+        for i, knot in enumerate(self.knots, start=3):
+            X_spl[:, i] = np.maximum(0, (X - knot)*(X - knot)*(X - knot)).squeeze()
+        return X_spl
