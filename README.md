@@ -10,6 +10,6 @@ The following classes are included:
   - `CubicSpline`: Creates a piecewise cubic spline which joins continuously, differentiably, and second differentiably at the knots.
   - `NaturalCubicSpline`: Creates a piecewise natural cubic spline (cubic curves in the interior segments, linear in the exterior segments) which joins continuously, differentiably, and second differentiably at the knots.
 
- ![Basis Transformations](img/basis-transformations.png)
+ ![Basis Expansions](img/basis-expansions.png)
 
  See the `basis-expansions-regressions.ipynb` notebook for examples of use.
