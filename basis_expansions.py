@@ -53,7 +53,7 @@ class Binner(BaseEstimator, TransformerMixin):
     def fit(self, *args, **kwargs):
         return self
 
-    def transform(self, X, y=None):
+    def transform(self, X, **transform_params):
         X = X.squeeze()
         X_binned = np.empty((X.shape[0], self._n_bins))
         X_binned[:, 0] = X <= self._cutpoints[0]
@@ -64,3 +64,28 @@ class Binner(BaseEstimator, TransformerMixin):
             X_binned[:, i+1] = (left_cut < X) * (X <= right_cut)
         X_binned[:, self._n_bins - 1] = self._cutpoints[-1] < X
         return X_binned
+
+
+class PolynomialExpansion(object):
+    """Apply a polynomial basis expansion to an array.
+
+    Note that the array should be standardized before using this basis
+    expansion.
+
+    Parameters
+    ----------
+    degree: The degree of polynomial basis to use.
+    """
+
+    def __init__(self, degree):
+        self.degree = degree
+
+    def fit(self, *args, **kwargs):
+        return self
+
+    def transform(self, X, **transform_params):
+        X_poly = np.zeros((X.shape[0], self.degree))
+        X_poly[:, 0] = X.squeeze()
+        for i in range(1, self.degree):
+            X_poly[:, i] = X_poly[:, i-1] * X.squeeze()
+        return X_poly
