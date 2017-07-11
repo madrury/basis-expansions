@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
 
@@ -58,6 +59,17 @@ class Binner(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X, **transform_params):
+        X_binned = self._transform_array(X)
+        if isinstance(X, pd.Series):
+            left_endpoints = ['neg_infinity'] + list(self.cutpoints)
+            right_endpoints = list(self.cutpoints) + ['pos_infinity']
+            col_names = [
+                "{}_bin_{}_to_{}".format(X.name, le, re)
+                for i, (le, re) in enumerate(zip(left_endpoints, right_endpoints))]
+            X_binned = pd.DataFrame(X_binned, columns=col_names, index=X.index)
+        return X_binned
+
+    def _transform_array(self, X, **transform_params):
         X = X.squeeze()
         X_binned = np.empty((X.shape[0], self.n_params + 1))
         X_binned[:, 0] = X <= self.cutpoints[0]
@@ -65,7 +77,7 @@ class Binner(BaseEstimator, TransformerMixin):
         iter_cuts = enumerate(
             zip(self.cutpoints[:(n_cutpoints - 1)], self.cutpoints[1:]))
         for i, (left_cut, right_cut) in iter_cuts:
-            X_binned[:, i+1] = (left_cut < X) * (X <= right_cut)
+            X_binned[:, i+1] = (left_cut < X) & (X <= right_cut)
         X_binned[:, self.n_params] = self.cutpoints[-1] < X
         return X_binned
 
