@@ -39,8 +39,11 @@ class Binner(BaseEstimator, TransformerMixin):
     n_cuts: The number of cuts to create.
     cutpoints: The cutpoints to ceate.
     """
-    def __init__(self, min=None, max=None, n_cuts=None, cutpoints=None):
+    def __init__(self, min=None, max=None, n_cuts=None,
+                       n_params=None, cutpoints=None):
         if not cutpoints:
+            if not n_cuts:
+                n_cuts = n_params
             cutpoints = np.linspace(min, max, num=(n_cuts + 2))[1:-1] 
             max, min = np.max(cutpoints), np.min(cutpoints)
         self._max = max
@@ -92,7 +95,9 @@ class Polynomial(BaseEstimator, TransformerMixin):
     ----------
     degree: The degree of polynomial basis to use.
     """
-    def __init__(self, degree):
+    def __init__(self, degree=None, n_params=None):
+        if not degree:
+            self.degree = n_params
         self.degree = degree
 
     @property
@@ -112,8 +117,10 @@ class Polynomial(BaseEstimator, TransformerMixin):
 
 class AbstractSpline(BaseEstimator, TransformerMixin):
     """Base class for all spline basis expansions."""
-    def __init__(self, max=None, min=None, n_knots=None, knots=None):
+    def __init__(self, max=None, min=None, n_knots=None, n_params=None, knots=None):
         if not knots:
+            if not n_knots:
+               n_knots = self._compute_n_knots(n_params)
             knots = np.linspace(min, max, num=(n_knots + 2))[1:-1] 
             max, min = np.max(knots), np.min(knots)
         self.knots = np.asarray(knots)
@@ -144,9 +151,12 @@ class LinearSpline(AbstractSpline):
     n_knots: The number of knots to create.
     knots: The knots.
     """
+    def _compute_n_knots(self, n_params):
+        return n_params - 1 
+
     @property
     def n_params(self):
-        return self.n_knots
+        return self.n_knots + 1
 
     def transform(self, X, **transform_params):
         X_pl = np.zeros((X.shape[0], self.n_knots + 1))
@@ -175,6 +185,9 @@ class CubicSpline(AbstractSpline):
     n_knots: The number of knots to create.
     knots: The knots.
     """
+    def _compute_n_knots(self, n_params):
+        return n_params - 3
+
     @property
     def n_params(self):
         return self.n_knots + 3
@@ -207,6 +220,9 @@ class NaturalCubicSpline(AbstractSpline):
     n_knots: The number of knots to create.
     knots: The knots.
     """
+    def _compute_n_knots(self, n_params):
+        return n_params
+
     @property
     def n_params(self):
         return self.n_knots
