@@ -97,7 +97,7 @@ class Polynomial(BaseEstimator, TransformerMixin):
     """
     def __init__(self, degree=None, n_params=None):
         if not degree:
-            self.degree = n_params
+            degree = n_params
         self.degree = degree
 
     @property
