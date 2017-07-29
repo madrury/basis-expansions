@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def run_simulation_expreiment(signal, regressors, N=250, N_trials=20, sd=0.1):
+def run_simulation_expreiment(signal, regressors, N=250, N_trials=100, sd=0.1):
     trials = run_trials(signal, regressors, N, N_trials, sd)
     
     def make_mean_errors(trials):
@@ -32,13 +32,6 @@ def plot_simulation_expreiment(ax, degrees_of_freedom, mean_errors, std_errors):
         degrees_of_freedom, test_top_band, test_bottom_band, alpha=0.2)
     ax.legend()
 
-def make_random_train_test(signal, N=250, sd=0.1):
-    x_train = np.random.uniform(0, 1, size=N)
-    y_train = signal(x_train) + np.random.normal(scale=sd, size=N)
-    x_test = np.random.uniform(0, 1, size=N)
-    y_test = signal(x_test) + np.random.normal(scale=sd, size=N)
-    return (x_train, y_train), (x_test, y_test)
-
 def run_trials(signal, regressors, N=250, N_trials=250, sd=0.1):
     N_dof = len(regressors)
     train_errors = np.empty(shape=(N_trials, N_dof))
@@ -54,3 +47,10 @@ def run_trials(signal, regressors, N=250, N_trials=250, sd=0.1):
             train_errors[i, j] = train_error
             test_errors[i, j] = test_error
     return train_errors, test_errors
+
+def make_random_train_test(signal, N=250, sd=0.1):
+    x_train = np.random.uniform(0, 1, size=N)
+    y_train = signal(x_train) + np.random.normal(scale=sd, size=N)
+    x_test = np.random.uniform(0, 1, size=N)
+    y_test = signal(x_test) + np.random.normal(scale=sd, size=N)
+    return (x_train, y_train), (x_test, y_test)
