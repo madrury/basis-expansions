@@ -1,4 +1,5 @@
 import numpy as np
+from itertools import product
 
 
 def run_simulation_expreiment(signal, regressors, N=250, N_trials=100, sd=0.1):
@@ -31,6 +32,24 @@ def plot_simulation_expreiment(ax, degrees_of_freedom, mean_errors, std_errors):
     ax.fill_between(
         degrees_of_freedom, test_top_band, test_bottom_band, alpha=0.2)
     ax.legend()
+
+def run_residual_simulation(signal, regressors, N, N_trials, sd=0.1):
+    test_xs = np.empty((len(regressors), N_trials, N))
+    test_errors = np.empty((len(regressors), N_trials, N))
+    for (i, regressor), sim in product(enumerate(regressors), range(N_trials)):
+        (x_train, y_train), (x_test, y_test) = make_random_train_test(
+            signal=signal, N=N)
+        regressor.fit(x_train.reshape(-1, 1), y_train)
+        test_xs[i, sim, :] = x_test
+        test_errors[i, sim, :] = (regressor.predict(x_test.reshape(-1, 1)) - y_test)
+    return test_xs, test_errors
+
+def plot_residual_simulation(axs, degrees_of_freedom, test_xs, test_errors, ylim=(-8, 8)):
+    for (i, degree), sim in product(enumerate(degrees_of_freedom), range(test_xs.shape[1])):
+        axs[i].scatter(
+            test_xs[i, sim, :], test_errors[i, sim, :], color="grey", alpha=0.4)
+        axs[i].set_ylim(*ylim)
+        axs.set_ylabel("Residual")
 
 def run_trials(signal, regressors, N=250, N_trials=250, sd=0.1):
     N_dof = len(regressors)
