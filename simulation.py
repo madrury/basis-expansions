@@ -2,7 +2,7 @@ import numpy as np
 from itertools import product
 
 
-def run_simulation_expreiment(signal, regressors, N=250, N_trials=100, sd=0.1):
+def run_simulation_expreiment(signal, regressors, N=250, N_trials=500, sd=0.1):
     trials = run_trials(signal, regressors, N, N_trials, sd)
     
     def make_mean_errors(trials):
