@@ -3,25 +3,6 @@ import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
 
-class ColumnSelector(BaseEstimator, TransformerMixin):
-    """Transformer that selects a column in a numpy array or DataFrame
-    by index or name.
-    """
-    def __init__(self, idxs=None, name=None):
-        self.idxs = np.asarray(idxs)
-
-    def fit(self, *args, **kwargs):
-        return self
-
-    def transform(self, X, **transform_params):
-        # Need to teat pandas data frames and numpy arrays slightly differently.
-        if isinstance(X, pd.DataFrame) and idxs:
-            return X.iloc[:, self.idxs]
-        if isinstance(X, pd.DataFrame) and name:
-            return X[name]
-        return X[:, self.idxs]
-
-
 class Binner(BaseEstimator, TransformerMixin):
     """Apply a binning basis expansion to an array.
 
