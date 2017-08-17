@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.utils.metaestimators import _BaseComposition
 
 
 class ColumnSelector(BaseEstimator, TransformerMixin):
@@ -10,30 +9,32 @@ class ColumnSelector(BaseEstimator, TransformerMixin):
     """
     def __init__(self, idxs=None, name=None):
         self.idxs = np.asarray(idxs)
+        self.idxs = idxs
+        self.name = name
 
     def fit(self, *args, **kwargs):
         return self
 
     def transform(self, X, **transform_params):
         # Need to teat pandas data frames and numpy arrays slightly differently.
-        if isinstance(X, pd.DataFrame) and idxs:
+        if isinstance(X, pd.DataFrame) and self.idxs:
             return X.iloc[:, self.idxs]
-        if isinstance(X, pd.DataFrame) and name:
-            return X[name]
+        if isinstance(X, pd.DataFrame) and self.name:
+            return X[self.name]
         return X[:, self.idxs]
 
 
-class FeatureUnion(_BaseComposition, TransformerMixin):
+class FeatureUnion(TransformerMixin):
 
     def __init__(self, transformer_list):
         self.transformer_list = transformer_list
 
     def fit(self, X, y=None):
-        for t in self.transformer_list:
+        for _, t in self.transformer_list:
             t.fit(X, y)
 
     def transform(self, X, *args, **kwargs):
-        Xs = [t.transform(X) for t in self.transformer_list]
+        Xs = [t.transform(X) for _, t in self.transformer_list]
         if isinstance(X, pd.DataFrame):
             return pd.concat(Xs, axis=1)
         return np.hstack(Xs)
