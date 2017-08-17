@@ -35,9 +35,28 @@ class FeatureUnion(TransformerMixin):
 
     def transform(self, X, *args, **kwargs):
         Xs = [t.transform(X) for _, t in self.transformer_list]
-        if isinstance(X, pd.DataFrame):
+        if isinstance(X, pd.DataFrame) or isinstance(X, pd.Series):
             return pd.concat(Xs, axis=1)
         return np.hstack(Xs)
+
+
+class MapFeature(TransformerMixin):
+
+    def __init__(self, f, name):
+        self.f = f
+        self.name = name
+
+    def fit(self, *args, **kwargs):
+        return self
+
+    def transform(self, X, *args, **kwargs):
+        if isinstance(X, pd.DataFrame):
+            raise ValueError("You must select a single column of a DataFrame"
+                             " before using MapFeature")
+        Xind = self.f(X).astype(float)
+        if isinstance(X, pd.Series):
+            return pd.Series(Xind, index=X.index, name=self.name)
+        return Xind
 
 
 class Intercept(TransformerMixin):
