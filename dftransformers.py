@@ -38,3 +38,15 @@ class FeatureUnion(TransformerMixin):
         if isinstance(X, pd.DataFrame):
             return pd.concat(Xs, axis=1)
         return np.hstack(Xs)
+
+
+class Intercept(TransformerMixin):
+
+    def fit(self, *args, **kwargs):
+        return self
+
+    def transform(self, X, *args, **kwargs):
+        if isinstance(X, pd.DataFrame) or isinstance(X, pd.Series):
+            return pd.Series(np.ones(X.shape[0]),
+                             index=X.index, name="intercept")
+        return np.ones(X.shape[0])
