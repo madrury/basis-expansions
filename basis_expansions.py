@@ -89,6 +89,14 @@ class Polynomial(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X, **transform_params):
+        X_poly = self._transform_array(X)
+        if isinstance(X, pd.Series):
+            col_names = [
+                "{}_degree_{}".format(X.name, d) for d in range(1, self.degree + 1)]
+            X_poly = pd.DataFrame(X_poly, columns=col_names, index=X.index)
+        return X_poly
+
+    def _transform_array(self, X, **transform_params):
         X_poly = np.zeros((X.shape[0], self.degree))
         X_poly[:, 0] = X.squeeze()
         for i in range(1, self.degree):
