@@ -280,10 +280,11 @@ class CubicSpline(AbstractSpline):
     def transform(self, X, **transform_params):
         X_spl = self._transform_array(X)
         if isinstance(X, pd.Series):
+            col_names = self._make_names(X)
             X_spl = pd.DataFrame(X_spl, columns=col_names, index=X.index)
         return X_spl
 
-    def make_names(self, X):
+    def _make_names(self, X):
         first_name = "{}_spline_linear".format(X.name)
         second_name = "{}_spline_quadratic".format(X.name)
         third_name = "{}_spline_cubic".format(X.name)
