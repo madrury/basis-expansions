@@ -304,13 +304,18 @@ class CubicSpline(AbstractSpline):
 class NaturalCubicSpline(AbstractSpline):
     """Apply a natural cubic basis expansion to an array.
 
-    Create new features out of an array that can be used to fit a continuous
-    piecewise cubic function of the array.
+    The features created with this basis expansion can be used to fit a
+    piecewise cubic function under the constraint that the fitted curve is
+    linear *outside* the range of the knots..  The fitted curve is continuously
+    differentiable to the second order at all of the knots.
 
-    This transformer can be created by sepcifying the maximum, minimum, and
-    number of knots, or by specifying the cutpoints directly.  If the knots are
-    not directly sepcified, the resulting knots are equally space within the
-    *interior* of (max, min).
+    This transformer can be created in two ways:
+      - By sepcifying the maximum, minimum, and number of knots.
+      - By specifying the cutpoints directly.  
+      
+    If the knots are not directly sepcified, the resulting knots are equally
+    space within the *interior* of (max, min).  That is, the endpoints are
+    *not* included as knots.
 
     Parameters
     ----------
@@ -336,11 +341,15 @@ class NaturalCubicSpline(AbstractSpline):
     def transform(self, X, **transform_params):
         X_spl = self._transform_array(X)
         if isinstance(X, pd.Series):
-            col_names = ["{}_spline_linear".format(X.name)] + [
-                "{}_spline_{}".format(X.name, idx)
-                for idx in range(self.n_knots - 2)]
+            col_names = self._make_names(X)
             X_spl = pd.DataFrame(X_spl, columns=col_names, index=X.index)
         return X_spl
+
+    def _make_names(self, X):
+        first_name = "{}_spline_linear".format(X.name)
+        rest_names = ["{}_spline_{}".format(X.name, idx)
+                     for idx in range(self.n_knots - 2)]
+        return [first_name] + rest_names
 
     def _transform_array(self, X, **transform_params):
         X = X.squeeze()
