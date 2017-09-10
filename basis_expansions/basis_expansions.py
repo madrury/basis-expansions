@@ -220,6 +220,19 @@ class LinearSpline(AbstractSpline):
         return self.n_knots + 1
 
     def transform(self, X, **transform_params):
+        X_pl = self._transform_array(X, **transform_params)
+        if isinstance(X, pd.Series):
+            col_names = self._make_names(X)
+            X_pl = pd.DataFrame(X_pl, columns=col_names, index=X.index)
+        return X_pl
+
+    def _make_names(self, X):
+        first_name = "{}_spline_linear".format(X.name)
+        rest_names = ["{}_spline_{}".format(X.name, idx)
+                      for idx in range(self.n_knots)]
+        return [first_name] + rest_names
+
+    def _transform_array(self, X, **transform_params):
         X_pl = np.zeros((X.shape[0], self.n_knots + 1))
         X_pl[:, 0] = X.squeeze()
         for i, knot in enumerate(self.knots, start=1):
