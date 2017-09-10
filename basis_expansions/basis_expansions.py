@@ -1,3 +1,28 @@
+"""
+basis_expansions: Basis Expansions for Regression.
+
+The basis_expansions model contains classes for basis expansions to be used in
+regression models.  Given a feature x, a basis expansions for that feature x is
+a collection of functions
+
+    f_0, f_1, f_2, ...
+
+that are meant to be applied to the feature to construct derived features in a
+regression model.  The functions in the expansions are often chosen to allow
+the model to adapt to non-linear shapes in the predictor/response relationship.
+
+Each class in this module conforms to the scikit-learn transformter api, and
+work on both numpy.array and pandas.Series objects.
+
+The following basis expansions are supported:
+    - Binner: Cut the range of x into bins, and create indicator features for
+      bin membership.
+    - Polynomial: Polynomial expansion of a given degree.
+    - LinearSpline: Piecewise linear spline.
+    - CubicSpline: Piecewise cubic spline.
+    - NaturalCubicSpline: Piecewise cubic spline constained to be linear
+      outside of knots.
+"""
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -6,19 +31,32 @@ from sklearn.base import BaseEstimator, TransformerMixin
 class Binner(BaseEstimator, TransformerMixin):
     """Apply a binning basis expansion to an array.
 
-    Create new features out of an array by binning the values of that array
+    Creates new features out of an array by binning the values of that array
     based on a sequence of intervals. An indicator feature is created for each
     bin, indicating which bin the given observation falls into.
     
-    This transformer can be created by sepcifying the maximum, minimum, and
-    number of cutpoints, or by specifying the cutpoints directly.
+    This transformer can be created in two ways:
+      - By sepcifying the maximum, minimum, and number of cutpoints (or the
+        number of parameters to estimate).
+      - By specifying the cutpoints directly.
 
     Parameters
     ----------
-    min: Minimum cutpoint for the bins.
-    max: Maximum cutpoint for the bins.
-    n_cuts: The number of cuts to create.
-    cutpoints: The cutpoints to ceate.
+    min: float
+        Minimum cutpoint for the bins.
+    
+    max: float
+        Maximum cutpoint for the bins.
+    
+    n_cuts: 
+        The number of cuts to create.
+
+    n_params:
+        The number of non-intercept parameters to estimate in a regression
+        using the transformed features.  Equal to the number of cutpoints.
+    
+    cutpoints: 
+        The cutpoints to use in the bins.
     """
     def __init__(self, min=None, max=None, n_cuts=None,
                        n_params=None, cutpoints=None):
@@ -33,9 +71,13 @@ class Binner(BaseEstimator, TransformerMixin):
 
     @property
     def n_params(self):
-        """
-        Note: For fair accounting, we do NOT include the intercept term
-        in the number of estimated parameters.
+        """The number of parameters estimated when regression on features
+        created by Binner.
+
+        Notes
+        -----
+        For fair accounting, we do NOT include the intercept term in the number
+        of estimated parameters.
         """
         return len(self.cutpoints)
 
@@ -45,13 +87,17 @@ class Binner(BaseEstimator, TransformerMixin):
     def transform(self, X, **transform_params):
         X_binned = self._transform_array(X)
         if isinstance(X, pd.Series):
-            left_endpoints = ['neg_infinity'] + list(self.cutpoints)
-            right_endpoints = list(self.cutpoints) + ['pos_infinity']
-            col_names = [
-                "{}_bin_{}_to_{}".format(X.name, le, re)
-                for i, (le, re) in enumerate(zip(left_endpoints, right_endpoints))]
+            col_names = self._make_names()
             X_binned = pd.DataFrame(X_binned, columns=col_names, index=X.index)
         return X_binned
+
+    def _make_names(self):
+        left_endpoints = ['neg_infinity'] + list(self.cutpoints)
+        right_endpoints = list(self.cutpoints) + ['pos_infinity']
+        col_names = [
+            "{}_bin_{}_to_{}".format(X.name, le, re)
+            for i, (le, re) in enumerate(zip(left_endpoints, right_endpoints))]
+        return col_names
 
     def _transform_array(self, X, **transform_params):
         X = X.squeeze()
@@ -69,12 +115,20 @@ class Binner(BaseEstimator, TransformerMixin):
 class Polynomial(BaseEstimator, TransformerMixin):
     """Apply a polynomial basis expansion to an array.
 
-    Note that the array should be standardized before using this basis
-    expansion.
 
     Parameters
     ----------
-    degree: The degree of polynomial basis to use.
+    degree: positive integer.
+        The degree of polynomial basis to use.
+
+    n_params:
+        The number of non-intercept parameters to estimate in a regression
+        using the transformed features.  Equal to the degree.
+
+    Notes
+    -----
+    The array should be standardized before using this basis expansion to void
+    numerical issues.
     """
     def __init__(self, degree=None, n_params=None):
         if not degree:
@@ -83,6 +137,9 @@ class Polynomial(BaseEstimator, TransformerMixin):
 
     @property
     def n_params(self):
+        """The number of parameters estimated when regression on features
+        created by Polynomial.
+        """
         return self.degree
 
     def fit(self, *args, **kwargs):
