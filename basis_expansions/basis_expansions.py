@@ -182,20 +182,35 @@ class AbstractSpline(BaseEstimator, TransformerMixin):
 class LinearSpline(AbstractSpline):
     """Apply a piecewise linear basis expansion to an array.
 
-    Create new features out of an array that can be used to fit a continuous
-    piecewise linear function of the array.
+    The features created with this basis expansion can be used to fit a
+    piecewise linear function.  Exact form of the basis functions are:
 
-    This transformer can be created by sepcifying the maximum, minimum, and
-    number of knots, or by specifying the cutpoints directly.  If the knots are
-    not directly sepcified, the resulting knots are equally space within the
-    *interior* of (max, min).
+        f_0(x) = x
+        f_1(x) = max(0, x - k_1)
+        ...
+        f_j(x) = max(0, x - k_j)
+
+    This transformer can be created in two ways:
+      - By sepcifying the maximum, minimum, and number of knots. 
+      - By specifying the knots directly.  
+      
+    If the knots are not directly sepcified, the resulting knots are equally
+    space within the *interior* of (max, min).  That is, the endpoints are
+    *not* included as knots.
 
     Parameters
     ----------
-    min: Minimum of interval containing the knots.
-    max: Maximum of the interval containing the knots.
-    n_knots: The number of knots to create.
-    knots: The knots.
+    min: float 
+        Minimum of interval containing the knots.
+
+    max: float 
+        Maximum of the interval containing the knots.
+
+    n_knots: positive integer 
+        The number of knots to create.
+
+    knots: array or list of floats 
+        The knots.
     """
     def _compute_n_knots(self, n_params):
         return n_params - 1 
