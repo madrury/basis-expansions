@@ -243,21 +243,32 @@ class LinearSpline(AbstractSpline):
 class CubicSpline(AbstractSpline):
     """Apply a piecewise cubic basis expansion to an array.
 
-    Create new features out of an array that can be used to fit a continuous
-    piecewise cubic function of the array.  The fitted curve is continuous to
-    the second order at all of the knots.
+    
+    The features created with this basis expansion can be used to fit a
+    piecewise cubic function.  The fitted curve is continuously differentiable
+    to the second order at all of the knots.
 
-    This transformer can be created by sepcifying the maximum, minimum, and
-    number of knots, or by specifying the cutpoints directly.  If the knots are
-    not directly sepcified, the resulting knots are equally space within the
-    *interior* of (max, min).
+    This transformer can be created in two ways:
+      - By sepcifying the maximum, minimum, and number of knots.
+      - By specifying the cutpoints directly.  
+      
+    If the knots are not directly sepcified, the resulting knots are equally
+    space within the *interior* of (max, min).  That is, the endpoints are
+    *not* included as knots.
 
     Parameters
     ----------
-    min: Minimum of interval containing the knots.
-    max: Maximum of the interval containing the knots.
-    n_knots: The number of knots to create.
-    knots: The knots.
+    min: float 
+        Minimum of interval containing the knots.
+
+    max: float 
+        Maximum of the interval containing the knots.
+
+    n_knots: positive integer 
+        The number of knots to create.
+
+    knots: array or list of floats 
+        The knots.
     """
     def _compute_n_knots(self, n_params):
         return n_params - 3
@@ -267,6 +278,20 @@ class CubicSpline(AbstractSpline):
         return self.n_knots + 3
 
     def transform(self, X, **transform_params):
+        X_spl = self._transform_array(X)
+        if isinstance(X, pd.Series):
+            X_spl = pd.DataFrame(X_spl, columns=col_names, index=X.index)
+        return X_spl
+
+    def make_names(self, X):
+        first_name = "{}_spline_linear".format(X.name)
+        second_name = "{}_spline_quadratic".format(X.name)
+        third_name = "{}_spline_cubic".format(X.name)
+        rest_names = ["{}_spline_{}".format(X.name, idx)
+                      for idx in range(self.n_knots)]
+        return [first_name, second_name, third_name] + rest_names
+
+    def _transform_array(self, X, **transform_params):
         X_spl = np.zeros((X.shape[0], self.n_knots + 3))
         X_spl[:, 0] = X.squeeze()
         X_spl[:, 1] = X_spl[:, 0] * X_spl[:, 0]
@@ -289,10 +314,17 @@ class NaturalCubicSpline(AbstractSpline):
 
     Parameters
     ----------
-    min: Minimum of interval containing the knots.
-    max: Maximum of the interval containing the knots.
-    n_knots: The number of knots to create.
-    knots: The knots.
+    min: float 
+        Minimum of interval containing the knots.
+
+    max: float 
+        Maximum of the interval containing the knots.
+
+    n_knots: positive integer 
+        The number of knots to create.
+
+    knots: array or list of floats 
+        The knots.
     """
     def _compute_n_knots(self, n_params):
         return n_params
