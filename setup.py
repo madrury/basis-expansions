@@ -31,5 +31,5 @@ setup(
     ],
     keywords='statistics',
     packages=['basis_expansions'],
-    install_requires=['numpy', 'pandas', 'sklearn'],
+    install_requires=['numpy', 'pandas', 'scikit-learn'],
 )
