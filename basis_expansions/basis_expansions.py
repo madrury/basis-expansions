@@ -11,7 +11,7 @@ that are meant to be applied to the feature to construct derived features in a
 regression model.  The functions in the expansions are often chosen to allow
 the model to adapt to non-linear shapes in the predictor/response relationship.
 
-Each class in this module conforms to the scikit-learn transformter api, and
+Each class in this module conforms to the scikit-learn transformer api, and
 work on both numpy.array and pandas.Series objects.
 
 The following basis expansions are supported:
@@ -20,7 +20,7 @@ The following basis expansions are supported:
     - Polynomial: Polynomial expansion of a given degree.
     - LinearSpline: Piecewise linear spline.
     - CubicSpline: Piecewise cubic spline.
-    - NaturalCubicSpline: Piecewise cubic spline constained to be linear
+    - NaturalCubicSpline: Piecewise cubic spline constrained to be linear
       outside of knots.
 """
 import numpy as np
@@ -36,7 +36,7 @@ class Binner(BaseEstimator, TransformerMixin):
     bin, indicating which bin the given observation falls into.
     
     This transformer can be created in two ways:
-      - By sepcifying the maximum, minimum, and number of cutpoints (or the
+      - By specifying the maximum, minimum, and number of cutpoints (or the
         number of parameters to estimate).
       - By specifying the cutpoints directly.
 
@@ -191,10 +191,10 @@ class LinearSpline(AbstractSpline):
         f_j(x) = max(0, x - k_j)
 
     This transformer can be created in two ways:
-      - By sepcifying the maximum, minimum, and number of knots. 
+      - By specifying the maximum, minimum, and number of knots. 
       - By specifying the knots directly.  
       
-    If the knots are not directly sepcified, the resulting knots are equally
+    If the knots are not directly specified, the resulting knots are equally
     space within the *interior* of (max, min).  That is, the endpoints are
     *not* included as knots.
 
@@ -249,10 +249,10 @@ class CubicSpline(AbstractSpline):
     to the second order at all of the knots.
 
     This transformer can be created in two ways:
-      - By sepcifying the maximum, minimum, and number of knots.
+      - By specifying the maximum, minimum, and number of knots.
       - By specifying the cutpoints directly.  
       
-    If the knots are not directly sepcified, the resulting knots are equally
+    If the knots are not directly specified, the resulting knots are equally
     space within the *interior* of (max, min).  That is, the endpoints are
     *not* included as knots.
 
@@ -311,10 +311,10 @@ class NaturalCubicSpline(AbstractSpline):
     differentiable to the second order at all of the knots.
 
     This transformer can be created in two ways:
-      - By sepcifying the maximum, minimum, and number of knots.
+      - By specifying the maximum, minimum, and number of knots.
       - By specifying the cutpoints directly.  
       
-    If the knots are not directly sepcified, the resulting knots are equally
+    If the knots are not directly specified, the resulting knots are equally
     space within the *interior* of (max, min).  That is, the endpoints are
     *not* included as knots.
 
