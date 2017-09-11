@@ -1,7 +1,7 @@
 """
 basis_expansions: Basis Expansions for Regression.
 
-The basis_expansions model contains classes for basis expansions to be used in
+The basis_expansions module contains classes for basis expansions to be used in
 regression models.  Given a feature x, a basis expansions for that feature x is
 a collection of functions
 
