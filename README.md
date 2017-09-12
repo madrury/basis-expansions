@@ -69,7 +69,7 @@ array([[ 0.21776114,  0.        ,  0.        ],
 If we transform a `pandas.Series`:
 
 ```python
-s = pd.Series(x)
+s = pd.Series(x, name="moshi")
 pl = LinearSpline(knots=[0.25, 0.75])
 pl.fit_transform(s)
 ```
@@ -77,17 +77,17 @@ pl.fit_transform(s)
 the result is a `pandas.DataFrame`:
 
 ```python
-   None_spline_linear  None_spline_0  None_spline_1
-0            0.217761       0.000000       0.000000
-1            0.633605       0.383605       0.000000
-2            0.290898       0.040898       0.000000
-3            0.832847       0.582847       0.082847
-4            0.891589       0.641589       0.141589
-5            0.970761       0.720761       0.220761
-6            0.833730       0.583730       0.083730
-7            0.393019       0.143019       0.000000
-8            0.277735       0.027735       0.000000
-9            0.687729       0.437729       0.000000
+   moshi_spline_linear  moshi_spline_0  moshi_spline_1
+0             0.217761        0.000000        0.000000
+1             0.633605        0.383605        0.000000
+2             0.290898        0.040898        0.000000
+3             0.832847        0.582847        0.082847
+4             0.891589        0.641589        0.141589
+5             0.970761        0.720761        0.220761
+6             0.833730        0.583730        0.083730
+7             0.393019        0.143019        0.000000
+8             0.277735        0.027735        0.000000
+9             0.687729        0.437729        0.000000
 ```
 
 More advanced use can combine these transformers with `sklearn.pipeline` objects.  For helper classes that allow for transformations on `pandas.DataFrames`, see `examples/dftransformers.py`.
