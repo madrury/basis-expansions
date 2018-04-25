@@ -15,7 +15,13 @@ matrix or data frame of derived features
 
 ## Installation
 
-A `setup.py` file is included. To install into a python environment, first clone this repository:
+You can install this library directly from github:
+
+```bash
+pip install git+https://github.com/madrury/basis-expansions.git
+```
+
+If you would prefer to install from source, first clone this repository:
 
 ```bash
 git clone https://github.com/madrury/basis-expansions.git
