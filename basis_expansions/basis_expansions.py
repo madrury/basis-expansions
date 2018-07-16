@@ -354,7 +354,10 @@ class NaturalCubicSpline(AbstractSpline):
 
     def _transform_array(self, X, **transform_params):
         X = X.squeeze()
-        X_spl = np.zeros((X.shape[0], self.n_knots - 1))
+        try:
+            X_spl = np.zeros((X.shape[0], self.n_knots - 1))
+        except IndexError:
+            X_spl = np.zeros((1, self.n_knots - 1))
         X_spl[:, 0] = X.squeeze()
 
         def d(knot_idx, x):
