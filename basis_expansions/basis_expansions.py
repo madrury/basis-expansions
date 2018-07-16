@@ -164,7 +164,7 @@ class Polynomial(BaseEstimator, TransformerMixin):
 class AbstractSpline(BaseEstimator, TransformerMixin):
     """Base class for all spline basis expansions."""
     def __init__(self, max=None, min=None, n_knots=None, n_params=None, knots=None):
-        if not knots:
+        if knots is None:
             if not n_knots:
                n_knots = self._compute_n_knots(n_params)
             knots = np.linspace(min, max, num=(n_knots + 2))[1:-1] 
