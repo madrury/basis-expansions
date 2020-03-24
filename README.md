@@ -39,6 +39,7 @@ pip install .
 The following classes are included:
 
   - `Binner`: Creates indicator variables by segmenting the range of `x` into disjoint intervals.
+  - `GaussianKernel`: Create Gaussian Kernel features, also known as "radial basis functions" by people cooler than me.
   - `Polynomial`: Creates polynomial features.  Using these features in a regression fits a polynomial function of a given degree `x` to `y`.
   - `LinearSpline`: Creates a piecewise linear spline which joins continuously at the knots.  Using this in a regression fits a piecewise linear function of `x` to `y`.
   - `CubicSpline`: Creates a piecewise cubic spline which joins continuously, differentiably, and second differentiably at a set of supplied knots.
