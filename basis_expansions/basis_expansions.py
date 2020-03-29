@@ -246,19 +246,28 @@ class Polynomial(BaseEstimator, TransformerMixin):
 
 class AbstractSpline(BaseEstimator, TransformerMixin):
     """Base class for all spline basis expansions."""
-    def __init__(self, max=None, min=None, n_knots=None, n_params=None, knots=None):
+    def __init__(self, max=None, min=None, n_knots=None, n_params=None, knots=None, knot_strategy='even'):
+        self.knots = knots
+        self.min, self.max = min, max
+        self.knot_strategy = knot_strategy
         if knots is None:
             if not n_knots:
                n_knots = self._compute_n_knots(n_params)
-            knots = np.linspace(min, max, num=(n_knots + 2))[1:-1]
-            max, min = np.max(knots), np.min(knots)
-        self.knots = np.asarray(knots)
+            self.n_knots = n_knots
+        else:
+            self.n_knots = len(knots)
 
-    @property
-    def n_knots(self):
-        return len(self.knots)
-
-    def fit(self, *args, **kwargs):
+    def fit(self, X, *args, **kwargs):
+        if not self.min:
+            self.min = X.min()
+        if not self.max:
+            self.max = X.max()
+        if not self.knots:
+            if self.knot_strategy == 'even':
+                self.knots = np.linspace(self.min, self.max, num=(self.n_knots + 2))[1:-1]
+            elif self.knot_strategy == 'quantiles':
+                quantiles = np.linspace(0.0, 1.0, num=(self.n_knots + 2))[1:-1]
+                self.knots = np.quantile(X, quantiles)
         return self
 
 
@@ -291,6 +300,11 @@ class LinearSpline(AbstractSpline):
 
     n_knots: positive integer
         The number of knots to create.
+
+    knot_strategy: str
+        Strategy for determining the knots at fit time. Current options are:
+          - 'even': Evenly position the knots within the range (min, max).
+          - 'quantiles': Set the knots to even quantiles of the data distribution.
 
     knots: array or list of floats
         The knots.
@@ -352,6 +366,11 @@ class CubicSpline(AbstractSpline):
 
     n_knots: positive integer
         The number of knots to create.
+
+    knot_strategy: str
+        Strategy for determining the knots at fit time. Current options are:
+          - 'even': Evenly position the knots within the range (min, max).
+          - 'quantiles': Set the knots to even quantiles of the data distribution.
 
     knots: array or list of floats
         The knots.
@@ -417,6 +436,11 @@ class NaturalCubicSpline(AbstractSpline):
 
     n_knots: positive integer
         The number of knots to create.
+
+    knot_strategy: str
+        Strategy for determining the knots at fit time. Current options are:
+          - 'even': Evenly position the knots within the range (min, max).
+          - 'quantiles': Set the knots to even quantiles of the data distribution.
 
     knots: array or list of floats
         The knots.
