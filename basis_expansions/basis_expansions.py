@@ -87,6 +87,9 @@ class Binner(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X, **transform_params):
+        if isinstance(X, pd.DataFrame):
+            assert X.shape[1] == 1
+            X = X.iloc[:, 0]
         X_binned = self._transform_array(X)
         if isinstance(X, pd.Series):
             col_names = self._make_names(X)
@@ -168,6 +171,9 @@ class GaussianKernel(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X, **transform_params):
+        if isinstance(X, pd.DataFrame):
+            assert X.shape[1] == 1
+            X = X.iloc[:, 0]
         X_features = self._transform_array(X)
         if isinstance(X, pd.Series):
             col_names = self._make_names(X)
@@ -220,6 +226,9 @@ class Polynomial(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X, **transform_params):
+        if isinstance(X, pd.DataFrame):
+            assert X.shape[1] == 1
+            X = X.iloc[:, 0]
         X_poly = self._transform_array(X)
         if isinstance(X, pd.Series):
             col_names = [
@@ -294,6 +303,9 @@ class LinearSpline(AbstractSpline):
         return self.n_knots + 1
 
     def transform(self, X, **transform_params):
+        if isinstance(X, pd.DataFrame):
+            assert X.shape[1] == 1
+            X = X.iloc[:, 0]
         X_pl = self._transform_array(X, **transform_params)
         if isinstance(X, pd.Series):
             col_names = self._make_names(X)
@@ -352,6 +364,9 @@ class CubicSpline(AbstractSpline):
         return self.n_knots + 3
 
     def transform(self, X, **transform_params):
+        if isinstance(X, pd.DataFrame):
+            assert X.shape[1] == 1
+            X = X.iloc[:, 0]
         X_spl = self._transform_array(X)
         if isinstance(X, pd.Series):
             col_names = self._make_names(X)
@@ -414,6 +429,9 @@ class NaturalCubicSpline(AbstractSpline):
         return self.n_knots - 1
 
     def transform(self, X, **transform_params):
+        if isinstance(X, pd.DataFrame):
+            assert X.shape[1] == 1
+            X = X.iloc[:, 0]
         X_spl = self._transform_array(X)
         if isinstance(X, pd.Series):
             col_names = self._make_names(X)
