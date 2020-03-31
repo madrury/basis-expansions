@@ -62,8 +62,8 @@ class Binner(BaseEstimator, TransformerMixin):
     """
     def __init__(self, min=None, max=None, n_cuts=None,
                        n_params=None, cutpoints=None):
-        if not cutpoints:
-            if not n_cuts:
+        if cutpoints is None:
+            if n_cuts is None:
                 n_cuts = n_params
             cutpoints = np.linspace(min, max, num=(n_cuts + 2))[1:-1]
             max, min = np.max(cutpoints), np.min(cutpoints)
@@ -155,7 +155,7 @@ class GaussianKernel(BaseEstimator, TransformerMixin):
                        n_centers=None,
                        centers=None,
                        bandwidth=1.0):
-        if not centers:
+        if centers is None:
             centers = np.linspace(min, max, num=(n_centers + 2))[1:-1]
             max, min = np.max(centers), np.min(centers)
         self._max = max
@@ -211,7 +211,7 @@ class Polynomial(BaseEstimator, TransformerMixin):
     numerical issues.
     """
     def __init__(self, degree=None, n_params=None):
-        if not degree:
+        if degree is None:
             degree = n_params
         self.degree = degree
 
@@ -251,18 +251,18 @@ class AbstractSpline(BaseEstimator, TransformerMixin):
         self.min, self.max = min, max
         self.knot_strategy = knot_strategy
         if knots is None:
-            if not n_knots:
+            if n_knots is None:
                n_knots = self._compute_n_knots(n_params)
             self.n_knots = n_knots
         else:
             self.n_knots = len(knots)
 
     def fit(self, X, *args, **kwargs):
-        if not self.min:
+        if self.min is None:
             self.min = X.min()
-        if not self.max:
+        if self.max is None:
             self.max = X.max()
-        if not self.knots:
+        if self.knots is None:
             if self.knot_strategy == 'even':
                 self.knots = np.linspace(self.min, self.max, num=(self.n_knots + 2))[1:-1]
             elif self.knot_strategy == 'quantiles':
