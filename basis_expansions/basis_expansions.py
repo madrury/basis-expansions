@@ -105,7 +105,7 @@ class Binner(BaseEstimator, TransformerMixin):
         return col_names
 
     def _transform_array(self, X, **transform_params):
-        X = X.squeeze()
+        X = np.asarray(X).squeeze()
         X_binned = np.empty((X.shape[0], self.n_params + 1))
         X_binned[:, 0] = X <= self.cutpoints[0]
         n_cutpoints = len(self.cutpoints)
@@ -187,7 +187,7 @@ class GaussianKernel(BaseEstimator, TransformerMixin):
         return col_names
 
     def _transform_array(self, X, **transform_params):
-        X = X.squeeze()
+        X = np.asarray(X).squeeze()
         exponents = - (X.reshape(-1, 1) - self.centers)**2 / (2 * self.bandwidth)
         return np.exp(exponents)
 
@@ -237,8 +237,9 @@ class Polynomial(BaseEstimator, TransformerMixin):
         return X_poly
 
     def _transform_array(self, X, **transform_params):
+        X = np.asarray(X).squeeze()
         X_poly = np.zeros((X.shape[0], self.degree))
-        X_poly[:, 0] = X.squeeze()
+        X_poly[:, 0] = np.asarray(X).squeeze()
         for i in range(1, self.degree):
             X_poly[:, i] = X_poly[:, i-1] * X.squeeze()
         return X_poly
@@ -333,6 +334,7 @@ class LinearSpline(AbstractSpline):
         return [first_name] + rest_names
 
     def _transform_array(self, X, **transform_params):
+        X = np.asarray(X).squeeze()
         X_pl = np.zeros((X.shape[0], self.n_knots + 1))
         X_pl[:, 0] = X.squeeze()
         for i, knot in enumerate(self.knots, start=1):
@@ -401,6 +403,7 @@ class CubicSpline(AbstractSpline):
         return [first_name, second_name, third_name] + rest_names
 
     def _transform_array(self, X, **transform_params):
+        X = np.asarray(X).squeeze()
         X_spl = np.zeros((X.shape[0], self.n_knots + 3))
         X_spl[:, 0] = X.squeeze()
         X_spl[:, 1] = X_spl[:, 0] * X_spl[:, 0]
@@ -469,7 +472,7 @@ class NaturalCubicSpline(AbstractSpline):
         return [first_name] + rest_names
 
     def _transform_array(self, X, **transform_params):
-        X = X.squeeze()
+        X = np.asarray(X).squeeze()
         try:
             X_spl = np.zeros((X.shape[0], self.n_knots - 1))
         except IndexError:
