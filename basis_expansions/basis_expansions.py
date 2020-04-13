@@ -182,8 +182,8 @@ class GaussianKernel(BaseEstimator, TransformerMixin):
 
     def _make_names(self, X):
         col_names = [
-            "{}_gaussian_center_{}".format(X.name, center)
-            for i, center in enumerate(self.centers)]
+            "{}_gaussian_center_{}".format(X.name, idx)
+            for idx, center in enumerate(self.centers)]
         return col_names
 
     def _transform_array(self, X, **transform_params):
