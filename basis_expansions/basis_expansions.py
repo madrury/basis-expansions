@@ -105,7 +105,7 @@ class Binner(BaseEstimator, TransformerMixin):
         return col_names
 
     def _transform_array(self, X, **transform_params):
-        X = np.asarray(X).squeeze()
+        X = np.asarray(X).reshape(-1)
         X_binned = np.empty((X.shape[0], self.n_params + 1))
         X_binned[:, 0] = X <= self.cutpoints[0]
         n_cutpoints = len(self.cutpoints)
@@ -187,7 +187,7 @@ class GaussianKernel(BaseEstimator, TransformerMixin):
         return col_names
 
     def _transform_array(self, X, **transform_params):
-        X = np.asarray(X).squeeze()
+        X = np.asarray(X).reshape(-1)
         exponents = - (X.reshape(-1, 1) - self.centers)**2 / (2 * self.bandwidth)
         return np.exp(exponents)
 
@@ -237,11 +237,11 @@ class Polynomial(BaseEstimator, TransformerMixin):
         return X_poly
 
     def _transform_array(self, X, **transform_params):
-        X = np.asarray(X).squeeze()
+        X = np.asarray(X).reshape(-1)
         X_poly = np.zeros((X.shape[0], self.degree))
-        X_poly[:, 0] = np.asarray(X).squeeze()
+        X_poly[:, 0] = X
         for i in range(1, self.degree):
-            X_poly[:, i] = X_poly[:, i-1] * X.squeeze()
+            X_poly[:, i] = X_poly[:, i-1] * X
         return X_poly
 
 
@@ -334,11 +334,11 @@ class LinearSpline(AbstractSpline):
         return [first_name] + rest_names
 
     def _transform_array(self, X, **transform_params):
-        X = np.asarray(X).squeeze()
+        X = np.asarray(X).reshape(-1)
         X_pl = np.zeros((X.shape[0], self.n_knots + 1))
-        X_pl[:, 0] = X.squeeze()
+        X_pl[:, 0] = X
         for i, knot in enumerate(self.knots, start=1):
-            X_pl[:, i] = np.maximum(0, X - knot).squeeze()
+            X_pl[:, i] = np.maximum(0, X - knot)
         return X_pl
 
 
@@ -403,13 +403,13 @@ class CubicSpline(AbstractSpline):
         return [first_name, second_name, third_name] + rest_names
 
     def _transform_array(self, X, **transform_params):
-        X = np.asarray(X).squeeze()
+        X = np.asarray(X).reshape(-1)
         X_spl = np.zeros((X.shape[0], self.n_knots + 3))
-        X_spl[:, 0] = X.squeeze()
+        X_spl[:, 0] = X
         X_spl[:, 1] = X_spl[:, 0] * X_spl[:, 0]
         X_spl[:, 2] = X_spl[:, 1] * X_spl[:, 0]
         for i, knot in enumerate(self.knots, start=3):
-            X_spl[:, i] = np.maximum(0, (X - knot)*(X - knot)*(X - knot)).squeeze()
+            X_spl[:, i] = np.maximum(0, (X - knot)*(X - knot)*(X - knot))
         return X_spl
 
 
@@ -472,12 +472,12 @@ class NaturalCubicSpline(AbstractSpline):
         return [first_name] + rest_names
 
     def _transform_array(self, X, **transform_params):
-        X = np.asarray(X).squeeze()
+        X = np.asarray(X).reshape(-1)
         try:
             X_spl = np.zeros((X.shape[0], self.n_knots - 1))
         except IndexError:
             X_spl = np.zeros((1, self.n_knots - 1))
-        X_spl[:, 0] = X.squeeze()
+        X_spl[:, 0] = X
 
         def d(knot_idx, x):
             ppart = lambda t: np.maximum(0, t)
@@ -488,5 +488,5 @@ class NaturalCubicSpline(AbstractSpline):
             return numerator / denominator
 
         for i in range(0, self.n_knots - 2):
-            X_spl[:, i+1] = (d(i, X) - d(self.n_knots - 2, X)).squeeze()
+            X_spl[:, i+1] = (d(i, X) - d(self.n_knots - 2, X))
         return X_spl
